@@ -1223,7 +1223,7 @@ int HID_API_EXPORT hid_get_feature_report(hid_device *dev, unsigned char *data, 
 		1000/*timeout millis*/);
 
 	if (res < 0)
-		return -1;
+		return res;
 
 	if (skipped_report_id)
 		res++;
@@ -1268,6 +1268,15 @@ void HID_API_EXPORT hid_close(hid_device *dev)
 	free_hid_device(dev);
 }
 
+
+int HID_API_EXPORT_CALL hid_get_report_descriptor(hid_device *dev, unsigned char *buf, size_t maxlen) {
+	return libusb_control_transfer(dev->device_handle,
+			/* See HID spec, 7.1.1 */
+			0x81,
+			LIBUSB_REQUEST_GET_DESCRIPTOR,
+			(LIBUSB_DT_REPORT << 8), dev->interface,
+			buf, maxlen, 1000);
+}
 
 int HID_API_EXPORT_CALL hid_get_manufacturer_string(hid_device *dev, wchar_t *string, size_t maxlen)
 {
